@@ -16,7 +16,7 @@ router.route('')
 	.get(async (req, res) => {
 		try {
 			const pool = await poolPromise;
-			const result = await pool.request().query(`SELECT Name, Team, Role, ContactNumber, Email, BirthMonth, BirthDay FROM Employee WHERE Email = '${req.user.email}'`);
+			const result = await pool.request().query(`SELECT FirstName, LastName, Team, Role, ContactNumber, Email, BirthMonth, BirthDay FROM Employee WHERE Email = '${req.user.email}'`);
 			res.status(200).json(result.recordset);
 		} catch (err) {
 			console.error('Database query error:', err);
