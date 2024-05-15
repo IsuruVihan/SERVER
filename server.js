@@ -31,7 +31,7 @@ app.use('/users', usersRouter);
 app.use('/token', tokenRouter);
 app.use('/user', userRouter);
 app.use('/my-account', myAccountRouter);
-app.use('/mark-attendance', attendanceMarkingRouter);
+app.use('/attendance', attendanceMarkingRouter);
 
 // Run app
 app.listen(4000, () => {
