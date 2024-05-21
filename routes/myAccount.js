@@ -29,41 +29,32 @@ router.route('')
 		}
 	})
 	.post(upload.none(), async (req, res) => {
-		const data = req.body.FirstName;
+		const data = req.body;
 		
 		try {
 			// Construct the SQL query dynamically based on the received data
             let updateQuery = `UPDATE Employee SET `;
-            const queryParams = [];
 
             if (data.FirstName) {
-                updateQuery += `FirstName = @FirstName, `;
-                queryParams.push({ name: 'FirstName', value: data.FirstName });
+                updateQuery += `FirstName = '${data.FirstName}', `;
             }
             if (data.LastName) {
-                updateQuery += `LastName = @LastName, `;
-                queryParams.push({ name: 'LastName', value: data.LastName });
+                updateQuery += `LastName = '${data.LastName}', `;
             }
             if (data.ContactNumber) {
-                updateQuery += `ContactNumber = @ContactNumber, `;
-                queryParams.push({ name: 'ContactNumber', value: data.ContactNumber });
+                updateQuery += `ContactNumber = '${data.ContactNumber}', `;
             }
             if (data.Birthdate) {
-                updateQuery += `Birthdate = @Birthdate, `;
-                queryParams.push({ name: 'Birthdate', value: data.Birthdate });
+                updateQuery += `Birthdate = '${data.Birthdate}', `;
             }
 
             // Remove the trailing comma and space
             updateQuery = updateQuery.slice(0, -2);
-            updateQuery += ` WHERE Email = @Email`;
-
-            const request = pool.request();
-            queryParams.forEach(param => {
-                request.input(param.name, param.value);
-            });
-            request.input('Email', req.user.email);
+            updateQuery += ` WHERE Email = '${req.user.email}'`;
+        	
 			console.log("UPDATE QUERY: ", updateQuery);
-            await request.query(updateQuery);
+			const pool = await poolPromise;
+			await pool.request().query(updateQuery);
 
             return res.status(200).json({ message: "Profile updated successfully" });
 		} catch (err) {
