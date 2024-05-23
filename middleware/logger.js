@@ -8,10 +8,10 @@ const logger = (req, res, next) => {
 	console.log(message);
 
 	fs.appendFile('request_logs.txt', message + '\n', (err) => {
-        if (err) {
-            console.error('Error writing to log file:', err);
-        }
-    });
+		if (err) {
+			console.error('Error writing to log file:', err);
+		}
+	});
 
 	next();
 }

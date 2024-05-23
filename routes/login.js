@@ -21,19 +21,19 @@ router.route('')
 
 			bcrypt.compare(password, result.recordset[0].Password, function(err, result) {
 				if (err) {
-					res.status(500).json({ message: "Internal Server Error" });
+					return res.status(500).json({ message: "Internal Server Error" });
 				} else if (result) {
 					const user = { email };
 					const accessToken = generateAccessToken(user);
 					const refreshToken = generateRefreshToken(user);
-					res.status(200).json({ message: "Login successful", accessToken, refreshToken });
+					return res.status(200).json({ message: "Login successful", accessToken, refreshToken });
 				} else {
 					return res.status(401).json({ message: "Username or password is incorrect" });
 				}
 			});
 		} catch (error) {
 			console.error("Error occurred during login:", error);
-			res.status(500).json({ message: "Internal Server Error" });
+			return res.status(500).json({ message: "Internal Server Error" });
 		}
 	});
 

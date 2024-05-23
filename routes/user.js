@@ -16,7 +16,7 @@ router.route('/')
 	.get(async (req, res) => {
 		const pool = await poolPromise;
 		const result = await pool.request().query(`SELECT FirstName, LastName FROM Employee WHERE email = '${req.user.email}'`);
-		res.status(200).json({
+		return res.status(200).json({
 			firstName: result.recordset[0].FirstName,
 			lastName: result.recordset[0].LastName
 		});
