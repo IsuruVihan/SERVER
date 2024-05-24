@@ -14,16 +14,26 @@ router.use(authenticateToken);
 
 router.route('')
 	.get(async (req, res) => {
+		const fromDate = req.query.from;
+		const toDate = req.query.to;
+
 		const pool = await poolPromise;
 
 		const employeeIdQuery = await pool.request().query(`SELECT Id FROM Employee WHERE email = '${req.user.email}'`);
+
 		if (employeeIdQuery.recordset[0]) {
 			const employeeId = employeeIdQuery.recordset[0].Id;
-			const attendanceQuery = await pool.request().query(`SELECT CheckInDate, CheckInTime, CheckOutDate, CheckOutTime FROM AttendanceRecord WHERE EmployeeId = '${employeeId}'`);
+
+			let sql = `SELECT CheckInDate, CheckInTime, CheckOutDate, CheckOutTime FROM AttendanceRecord WHERE EmployeeId = '${employeeId}'`;
+			if (fromDate && toDate) {
+				sql = `SELECT CheckInDate, CheckInTime, CheckOutDate, CheckOutTime FROM AttendanceRecord WHERE EmployeeId = '${employeeId}' AND CheckInDate >= '${fromDate}' AND CheckInDate <= '${toDate}'`;
+			}
+
+			const attendanceQuery = await pool.request().query(sql);
 			if (attendanceQuery.recordset) {
-				return res.status(200).json({ data: attendanceQuery.recordset });
+				return res.status(200).json({ data: attendanceQuery.recordset, userEmail: req.user.email });
 			} else {
-				return res.status(200).json({ data: null });
+				return res.status(200).json({ data: null, userEmail: req.user.email });
 			}
 		} else {
 			return res.status(404).json({ message: "User not found" });
