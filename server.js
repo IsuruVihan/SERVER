@@ -14,6 +14,7 @@ const usersRouter = require('./routes/users');
 const tokenRouter = require('./routes/token');
 const userRouter = require('./routes/user');
 const myAccountRouter = require('./routes/myAccount');
+const attendanceMarkingRouter = require('./routes/attendanceMarking');
 
 // Create express app
 const app = express();
@@ -30,6 +31,7 @@ app.use('/users', usersRouter);
 app.use('/token', tokenRouter);
 app.use('/user', userRouter);
 app.use('/my-account', myAccountRouter);
+app.use('/attendance', attendanceMarkingRouter);
 
 // Run app
 app.listen(4000, () => {

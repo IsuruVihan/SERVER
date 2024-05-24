@@ -17,24 +17,24 @@ router.route('')
 		try {
 			const pool = await poolPromise;
 			const result = await pool.request().query('SELECT * FROM Employee');
-			res.status(200).json(result.recordset);
+			return res.status(200).json(result.recordset);
 		} catch (err) {
 			console.error('Database query error:', err);
-			res.status(500).json({ error: 'Internal Server Error' });
+			return res.status(500).json({ error: 'Internal Server Error' });
 		}
 	})
 	.post((req, res) => {
-		res.status(200).json({message: "POST /users"});
+		return res.status(200).json({message: "POST /users"});
 	});
 
 router.route('/:email')
 	.get(async (req, res) => {
 		const pool = await poolPromise;
 		const result = await pool.request().query(`SELECT * FROM Employee WHERE email = '${req.user}'`);
-		res.status(200).json(result.recordset);
+		return res.status(200).json(result.recordset);
 	})
 	.post((req, res) => {
-		res.status(200).json({message: "POST /users/:id " + req.params.id});
+		return res.status(200).json({message: "POST /users/:id " + req.params.id});
 	});
 
 router.param('id', (req, res, next, id) => {
