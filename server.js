@@ -16,6 +16,8 @@ const userRouter = require('./routes/user');
 const myAccountRouter = require('./routes/myAccount');
 const attendanceMarkingRouter = require('./routes/attendanceMarking');
 const leavesRouter = require('./routes/leaves');
+const tlTeamMembersRouter = require('./routes/tlTeamMembers');
+const tlLeaveRequestsRouter = require('./routes/tlLeaveRequests');
 
 // Create express app
 const app = express();
@@ -34,6 +36,8 @@ app.use('/user', userRouter);
 app.use('/my-account', myAccountRouter);
 app.use('/attendance', attendanceMarkingRouter);
 app.use('/leaves', leavesRouter);
+app.use('/tl/team-members', tlTeamMembersRouter);
+app.use('/tl/leave-requests', tlLeaveRequestsRouter);
 
 // Run app
 app.listen(4000, () => {
