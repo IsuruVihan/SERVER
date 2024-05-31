@@ -23,7 +23,7 @@ router.route('')
 			const employeeLeavesQuery
 				= await pool.request().query(`SELECT CasualLeaves, MedicalLeaves FROM Employee WHERE email = '${req.user.email}'`);
 			const employeeLeaveRequestsQuery
-				= await pool.request().query(`SELECT CreatedOn, FromDate, ToDate, Reason, Type, Status FROM LeaveRequest WHERE CreatedBy = '${employeeIdQuery.recordset[0].Id}'`);
+				= await pool.request().query(`SELECT CreatedOn, FromDate, ToDate, Reason, Type, Status FROM LeaveRequest WHERE CreatedBy = '${employeeIdQuery.recordset[0].Id}' ORDER BY CreatedOn DESC`);
 
 			return res.status(200).json({
 				CasualLeaves: employeeLeavesQuery.recordset[0].CasualLeaves,

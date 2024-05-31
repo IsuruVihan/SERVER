@@ -24,9 +24,9 @@ router.route('')
 		if (employeeIdQuery.recordset[0]) {
 			const employeeId = employeeIdQuery.recordset[0].Id;
 
-			let sql = `SELECT CheckInDate, CheckInTime, CheckOutDate, CheckOutTime FROM AttendanceRecord WHERE EmployeeId = '${employeeId}'`;
+			let sql = `SELECT CheckInDate, CheckInTime, CheckOutDate, CheckOutTime FROM AttendanceRecord WHERE EmployeeId = '${employeeId}' ORDER BY CheckInDate DESC`;
 			if (fromDate && toDate) {
-				sql = `SELECT CheckInDate, CheckInTime, CheckOutDate, CheckOutTime FROM AttendanceRecord WHERE EmployeeId = '${employeeId}' AND CheckInDate >= '${fromDate}' AND CheckInDate <= '${toDate}'`;
+				sql = `SELECT CheckInDate, CheckInTime, CheckOutDate, CheckOutTime FROM AttendanceRecord WHERE EmployeeId = '${employeeId}' AND CheckInDate >= '${fromDate}' AND CheckInDate <= '${toDate}' ORDER BY CheckInDate DESC`;
 			}
 
 			const attendanceQuery = await pool.request().query(sql);
