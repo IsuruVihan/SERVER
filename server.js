@@ -20,6 +20,7 @@ const tlTeamMembersRouter = require('./routes/tlTeamMembers');
 const tlLeaveRequestsRouter = require('./routes/tlLeaveRequests');
 const coursesRouter = require('./routes/courses');
 const leaderboardRouter = require('./routes/leaderboard');
+const noticesRouter = require('./routes/notices');
 
 // Create express app
 const app = express();
@@ -42,6 +43,7 @@ app.use('/tl/team-members', tlTeamMembersRouter);
 app.use('/tl/leave-requests', tlLeaveRequestsRouter);
 app.use('/courses', coursesRouter);
 app.use('/leaderboard', leaderboardRouter);
+app.use('/notices', noticesRouter);
 
 // Run app
 app.listen(4000, () => {
