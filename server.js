@@ -17,12 +17,15 @@ const myAccountRouter = require('./routes/myAccount');
 const attendanceMarkingRouter = require('./routes/attendanceMarking');
 const leavesRouter = require('./routes/leaves');
 const tlTeamMembersRouter = require('./routes/tlTeamMembers');
+const adminTeamMembersRouter = require('./routes/adminTeamMembers');
 const tlLeaveRequestsRouter = require('./routes/tlLeaveRequests');
+const adminLeaveRequestsRouter = require('./routes/adminLeaveRequests');
 const coursesRouter = require('./routes/courses');
 const leaderboardRouter = require('./routes/leaderboard');
 const noticesRouter = require('./routes/notices');
 const isAdminRouter = require('./routes/isAdmin');
 const isTLRouter = require('./routes/isTL');
+
 
 // Create express app
 const app = express();
@@ -42,12 +45,15 @@ app.use('/my-account', myAccountRouter);
 app.use('/attendance', attendanceMarkingRouter);
 app.use('/leaves', leavesRouter);
 app.use('/tl/team-members', tlTeamMembersRouter);
+app.use('/admin/team-members', adminTeamMembersRouter);
 app.use('/tl/leave-requests', tlLeaveRequestsRouter);
+app.use('/admin/leave-requests', adminLeaveRequestsRouter);
 app.use('/courses', coursesRouter);
 app.use('/leaderboard', leaderboardRouter);
 app.use('/notices', noticesRouter);
 app.use('/is-admin', isAdminRouter);
 app.use('/is-tl', isTLRouter);
+
 
 // Run app
 app.listen(4000, () => {
