@@ -25,7 +25,8 @@ const leaderboardRouter = require('./routes/leaderboard');
 const noticesRouter = require('./routes/notices');
 const isAdminRouter = require('./routes/isAdmin');
 const isTLRouter = require('./routes/isTL');
-
+const employeeRouter = require('./routes/employee');
+const teamRouter = require('./routes/team');
 
 // Create express app
 const app = express();
@@ -53,7 +54,8 @@ app.use('/leaderboard', leaderboardRouter);
 app.use('/notices', noticesRouter);
 app.use('/is-admin', isAdminRouter);
 app.use('/is-tl', isTLRouter);
-
+app.use('/employee', employeeRouter);
+app.use('/team', teamRouter);
 
 // Run app
 app.listen(4000, () => {
