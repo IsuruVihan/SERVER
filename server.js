@@ -25,6 +25,7 @@ const isAdminRouter = require('./routes/isAdmin');
 const isTLRouter = require('./routes/isTL');
 const employeeRouter = require('./routes/employee');
 const teamRouter = require('./routes/team');
+const dashboardRouter = require('./routes/dashboard');
 
 // Create express app
 const app = express();
@@ -52,6 +53,7 @@ app.use('/is-admin', isAdminRouter);
 app.use('/is-tl', isTLRouter);
 app.use('/employee', employeeRouter);
 app.use('/team', teamRouter);
+app.use('/dashboard', dashboardRouter);
 
 // Run app
 app.listen(4000, () => {

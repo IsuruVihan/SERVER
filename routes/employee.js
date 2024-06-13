@@ -10,7 +10,6 @@ const authenticateToken = require('../middleware/authenticateToken');
 const getEmployeeId = require('../middleware/getEmployeeId');
 const checkAdmin = require('../middleware/checkAdmin');
 const {poolPromise} = require("../lib/database");
-const {promise} = require("bcrypt/promises");
 
 // Use route middlewares
 router.use(logger);
@@ -50,7 +49,7 @@ router.route('/')
 		}
 	})
 	.post(checkAdmin, async (req, res) => {
-		const {firstName, lastName, email, team, role, joinedOn} = req.body;
+		const {firstName, lastName, email, team, role} = req.body;
 
 		let teamId = '';
 		const emptyFirstName = firstName.trim().length === 0;
