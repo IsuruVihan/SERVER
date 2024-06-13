@@ -10,6 +10,7 @@ const authenticateToken = require('../middleware/authenticateToken');
 const getEmployeeId = require('../middleware/getEmployeeId');
 const checkAdmin = require('../middleware/checkAdmin');
 const {poolPromise} = require("../lib/database");
+const {promise} = require("bcrypt/promises");
 
 // Use route middlewares
 router.use(logger);
@@ -20,12 +21,14 @@ router.route('/')
 	.get(async (req, res) => {
 		try {
 			const pool = await poolPromise;
+
 			const employeesQuery = await pool.request().query(`
 				SELECT 
 					e.Id AS id, e.FirstName AS firstName, e.LastName AS lastName, e.Email AS email, e.Role AS role, 
 					e.IsAdmin AS isAdmin, e.Birthdate AS birthDay, t.Name AS team, t.Lead AS isTL
 				FROM Employee e
-				INNER JOIN Team t ON e.Team = t.Id
+				LEFT JOIN Team t ON e.Team = t.Id
+				WHERE e.Status = '1'
 			`);
 			const results = employeesQuery.recordset.map((r) => {
 				const year = r.birthDay ? r.birthDay.getFullYear() : '';
@@ -48,8 +51,6 @@ router.route('/')
 	})
 	.post(checkAdmin, async (req, res) => {
 		const {firstName, lastName, email, team, role, joinedOn} = req.body;
-
-		console.log(firstName, lastName, email, team, role.title, joinedOn);
 
 		let teamId = '';
 		const emptyFirstName = firstName.trim().length === 0;
@@ -122,11 +123,121 @@ router.route('/')
 			return res.status(500).json({message: "Unexpected error occurred"});
 		}
 	})
-	.put(checkAdmin, (req, res) => {
-		// UPDATE an employee
+	.put(checkAdmin, async (req, res) => {
+		const {firstName, lastName, email, team, role, birthDay, isTL} = req.body;
+
+		const emptyFirstName = firstName.trim().length === 0;
+		const emptyLastName = lastName.trim().length === 0;
+		const emptyEmail = email.trim().length === 0;
+		if (emptyFirstName || emptyLastName || emptyEmail)
+			return res.status(400).json({message: "Incomplete data"});
+
+		const invalidEmail = !isValidEmail(email);
+		if (invalidEmail)
+			return res.status(400).json({message: "Invalid email"});
+
+		if (role && !["Business Analyst", "Engineer", "Human Resources", "Marketing", "Finance"].includes(role))
+			return res.status(400).json({message: "Invalid role"});
+
+		try {
+			const pool = await poolPromise;
+
+			let empId = '';
+			let teamId = '';
+
+			await Promise.all([
+				(async() => {
+					const existingEmailQuery = await pool.request().query(`
+						SELECT Id FROM Employee WHERE Email = '${email}'
+					`);
+					if (existingEmailQuery.recordset.length === 0)
+						return res.status(400).json({message: "Employee email doesn't exists"});
+					empId = existingEmailQuery.recordset[0].Id;
+				})(),
+				(async() => {
+					if (team) {
+						if (team === "ADMIN")
+							return res.status(403).json({message: "Invalid team"});
+
+						const teamsQuery = await pool.request().query(`
+							SELECT Id FROM Team WHERE Name = '${team}'
+						`);
+						if (teamsQuery.recordset.length !== 1)
+							return res.status(400).json({message: "Team doesn't exists"});
+						teamId = teamsQuery.recordset[0].Id;
+					}
+				})(),
+			]);
+
+			await Promise.all([
+				(async() => {
+					await pool.request().query(`
+						UPDATE Employee
+						SET 
+							Team = '${teamId}', [Role] = '${role}', FirstName = '${firstName.trim()}', 
+							LastName = '${lastName.trim()}', Birthdate = '${birthDay}' 
+						WHERE Id = '${empId}'
+					`);
+				})(),
+				(async() => {
+					if (team && isTL) {
+						await pool.request().query(`
+							UPDATE Team SET Lead = '${empId}' WHERE Id = '${teamId}';
+						`);
+					}
+				})(),
+			]);
+
+			return res.status(200).json({message: "Employee account has been updated successfully"});
+		} catch (error) {
+			console.log(error);
+			return res.status(500).json({message: "Unexpected error occurred"});
+		}
 	})
-	.delete(checkAdmin, (req, res) => {
-		// DELETE an employee
+	.delete(checkAdmin, async (req, res) => {
+		const {email, isTL} = req.body;
+
+		if (email.trim().length === 0)
+			return res.status(400).json({message: "Incomplete data"});
+
+		const invalidEmail = !isValidEmail(email);
+		if (invalidEmail)
+			return res.status(400).json({message: "Invalid email"});
+
+		try {
+			const pool = await poolPromise;
+
+			let empId = '';
+
+			const existingEmailQuery = await pool.request().query(`
+				SELECT Id, IsAdmin FROM Employee WHERE Email = '${email}'
+			`);
+			if (existingEmailQuery.recordset.length === 0)
+				return res.status(400).json({message: "Employee email doesn't exists"});
+			if (existingEmailQuery.recordset[0].IsAdmin === 1)
+				return res.status(403).json({message: "Unauthorized"});
+			empId = existingEmailQuery.recordset[0].Id;
+
+			await Promise.all([
+				(async () => {
+					await pool.request().query(`
+						UPDATE Employee SET Status = '0' WHERE Id = '${empId}'
+					`);
+				})(),
+				(async () => {
+					if (isTL) {
+						await pool.request().query(`
+							UPDATE Team SET Lead = NULL WHERE Lead = '${empId}'
+						`);
+					}
+				})(),
+			]);
+
+			return res.status(200).json({message: "Employee has been deactivated successfully"});
+		} catch (error) {
+			console.log(error);
+			return res.status(500).json({message: "Unexpected error occurred"});
+		}
 	});
 
 module.exports = router;

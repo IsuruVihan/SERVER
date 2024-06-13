@@ -25,7 +25,8 @@ router.route('')
 					COALESCE(SUM(c.Points), 0) AS points
 				FROM CompletedKTCourse c
 				RIGHT JOIN Employee e 
-				ON c.EmployeeId = e.Id
+				ON c.EmployeeId = e.Id 
+				WHERE e.Status = '1'
 				GROUP BY e.Id, e.Email, e.FirstName, e.LastName
 				ORDER BY points DESC
 			`);
