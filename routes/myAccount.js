@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require("bcrypt");
 
 const multer = require('multer');
 
@@ -12,16 +13,23 @@ const {poolPromise} = require('../lib/database');
 // Import route middlewares
 const logger = require("../middleware/logger");
 const authenticateToken = require('../middleware/authenticateToken');
+const getEmployeeId = require('../middleware/getEmployeeId');
+const encryptPassword = require("../lib/encryptPassword");
 
 // Use route middlewares
 router.use(logger);
 router.use(authenticateToken);
+router.use(getEmployeeId);
 
 router.route('')
 	.get(async (req, res) => {
 		try {
 			const pool = await poolPromise;
-			const result = await pool.request().query(`SELECT FirstName, LastName, Team, Role, ContactNumber, Email, Birthdate FROM Employee WHERE Email = '${req.user.email}'`);
+			const result = await pool.request().query(`
+				SELECT e.FirstName, e.LastName, t.Name AS Team, e.Role, e.ContactNumber, e.Email, e.Birthdate 
+				FROM Employee e
+				LEFT JOIN Team t on e.Team = t.Id 
+				WHERE Email = '${req.user.email}'`);
 			return res.status(200).json(result.recordset);
 		} catch (err) {
 			console.error('Database query error:', err);
@@ -58,23 +66,49 @@ router.route('')
 
 			return res.status(200).json({message: "Profile updated successfully"});
 		} catch (err) {
-			return res.status(200).json({error: err});
+			return res.status(500).json({error: err});
 		}
 	});
 
-// router.route('/:email')
-// 	.get(async (req, res) => {
-// 		const pool = await poolPromise;
-// 		const result = await pool.request().query(`SELECT * FROM Employee WHERE email = '${req.user}'`);
-// 		res.status(200).json(result.recordset);
-// 	})
-// 	.post((req, res) => {
-// 		res.status(200).json({message: "POST /users/:id " + req.params.id});
-// 	});
+router.route('/reset-password')
+	.post(async (req, res) => {
+		const {currentPassword, newPassword, newPassword2} = req.body;
 
-// router.param('id', (req, res, next, id) => {
-// 	console.log(`Id: ${id}`);
-// 	next();
-// });
+		const emptyCurrentPassword = currentPassword === "";
+		const emptyNewPassword = newPassword === "";
+		const emptyNewPassword2 = newPassword2 === "";
+
+		if (emptyCurrentPassword || emptyNewPassword || emptyNewPassword2)
+			return res.status(400).json({message: "Incomplete data"});
+
+		if (newPassword !== newPassword2)
+			return res.status(400).json({message: "Passwords are not matching"});
+
+		try {
+			const pool = await poolPromise;
+
+			const result = await pool.request().query(`
+				SELECT Password FROM Employee WHERE Id = '${req.user.id}'
+			`);
+			bcrypt.compare(currentPassword, result.recordset[0].Password, async function (err, result) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json({message: "An unexpected error occurred"});
+				} else if (result) {
+					const hashedPassword = await encryptPassword(newPassword);
+
+					await pool.request().query(`
+						UPDATE Employee SET Password = '${hashedPassword}' WHERE Id = '${req.user.id}'
+					`);
+
+					return res.status(200).json({message: "Password has been changed successfully"});
+				} else {
+					return res.status(400).json({message: "Initial password is incorrect"});
+				}
+			});
+		} catch (err) {
+			return res.status(500).json({error: err});
+		}
+	});
 
 module.exports = router;

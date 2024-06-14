@@ -27,6 +27,7 @@ const employeeRouter = require('./routes/employee');
 const teamRouter = require('./routes/team');
 const dashboardRouter = require('./routes/dashboard');
 const postRouter = require('./routes/post');
+const chatRouter = require('./routes/chat');
 
 // Create express app
 const app = express();
@@ -56,6 +57,7 @@ app.use('/employee', employeeRouter);
 app.use('/team', teamRouter);
 app.use('/dashboard', dashboardRouter);
 app.use('/post', postRouter);
+app.use('/chat', chatRouter);
 
 // Run app
 app.listen(4000, () => {
