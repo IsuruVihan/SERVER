@@ -90,7 +90,7 @@ router.route('')
 							await deleteFileFromFirebaseStorage(currentProfileImageQuery.recordset[0].URL);
 						}
 
-						const attachmentName = ⁠ ${require('crypto').randomBytes(32).toString('hex')}.jpeg ⁠;
+						const attachmentName = `${require('crypto').randomBytes(32).toString('hex')}.jpeg`;
 						const attachmentURL = await uploadFileToFirebaseStorage(
 							req.files[0].buffer,
 							attachmentName,

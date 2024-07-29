@@ -70,7 +70,7 @@ router.route('')
 			`);
 
 			if (req.files.length > 0) {
-				const attachmentName = ⁠ ${require('crypto').randomBytes(32).toString('hex')}.jpeg ⁠;
+				const attachmentName = `${require('crypto').randomBytes(32).toString('hex')}.jpeg`;
 				const attachmentURL = await uploadFileToFirebaseStorage(
 					req.files[0].buffer,
 					attachmentName,

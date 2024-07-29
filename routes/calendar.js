@@ -28,7 +28,7 @@ router.route('')
 			}
 
 			const pad = (num) => num.toString().padStart(2, '0');
-			const formattedDate = ⁠ ${parsedDate.getUTCFullYear()}-${pad(parsedDate.getUTCMonth() + 1)}-${pad(parsedDate.getUTCDate())} ⁠;
+			const formattedDate = `${parsedDate.getUTCFullYear()}-${pad(parsedDate.getUTCMonth() + 1)}-${pad(parsedDate.getUTCDate())}`;
 
 			const pool = await poolPromise;
 
@@ -42,7 +42,7 @@ router.route('')
 			const results = eventsQuery.recordset.map(r => {
 				const formatDate = (date) => {
 					const d = new Date(date);
-					return ⁠ ${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ⁠;
+					return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
 				};
 
 				const formatTime = (time) => {
@@ -50,10 +50,10 @@ router.route('')
 					const hours = t.getUTCHours();
 					const minutes = t.getUTCMinutes();
 					const seconds = t.getUTCSeconds();
-					const refinedHours = hours < 10 ? ⁠ 0${hours} ⁠ : hours;
-					const refinedMinutes = minutes < 10 ? ⁠ 0${minutes} ⁠ : minutes;
-					const refinedSeconds = seconds < 10 ? ⁠ 0${seconds} ⁠ : seconds;
-					return ⁠ ${refinedHours}:${refinedMinutes}:${refinedSeconds} ⁠;
+					const refinedHours = hours < 10 ? `0${hours}`: hours;
+					const refinedMinutes = minutes < 10 ? `0${minutes}`: minutes;
+					const refinedSeconds = seconds < 10 ? `0${seconds}`: seconds;
+					return `${refinedHours}:${refinedMinutes}:${refinedSeconds}`;
 				};
 
 				return {
@@ -130,7 +130,7 @@ router.route('')
 			const pool = await poolPromise;
 
 			await pool.request()
-				.query(⁠ DELETE FROM CalendarEvent WHERE Id = '${Id}' ⁠);
+				.query(`DELETE FROM CalendarEvent WHERE Id = '${Id}'`);
 
 			return res.status(200).json({ message: "Event deleted successfully" });
 		} catch (e) {
