@@ -18,9 +18,10 @@ router.route('/contacts')
 			const pool = await poolPromise;
 
 			const employeesQuery = await pool.request().query(`
-				SELECT FirstName + ' ' + LastName AS name, Email AS email, Id
-				FROM Employee
-				WHERE Status = '1' AND Id != '${req.user.id}'
+				SELECT e.FirstName + ' ' + e.LastName AS name, e.Email AS email, e.Id, pp.URL AS profilePicture
+				FROM Employee e
+				LEFT JOIN ProfilePicture pp ON e.Id = pp.EmployeeId
+				WHERE Status = '1' AND e.Id != '${req.user.id}'
 			`);
 
 			return res.status(200).json({employees: employeesQuery.recordset});
@@ -86,7 +87,7 @@ router.route('/message/:participantId')
 			const hours = String(now.getHours()).padStart(2, '0');
 			const minutes = String(now.getMinutes()).padStart(2, '0');
 			const seconds = String(now.getSeconds()).padStart(2, '0');
-			const timeAsString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+			const timeAsString = ⁠ ${year}-${month}-${day} ${hours}:${minutes}:${seconds} ⁠;
 
 			await pool.request().query(`
 				INSERT INTO PrivateMessage (SenderId, ReceiverId, Content, SentOn)

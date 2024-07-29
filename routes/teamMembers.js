@@ -25,14 +25,16 @@ router.route('/')
 
 		if (admin) {
 			teamMembersQuery = await pool.request().query(`
-				SELECT e.Id, e.FirstName, e.LastName, e.Email, e.Role 
-				FROM Employee e 
+				SELECT e.Id, e.FirstName, e.LastName, e.Email, e.Role, pp.URL 
+				FROM Employee e
+				LEFT JOIN ProfilePicture pp ON e.Id = pp.EmployeeId 
 				WHERE e.Id IN (SELECT Lead FROM Team)
 			`);
 		} else {
 			teamMembersQuery = await pool.request().query(`
-				SELECT Id, FirstName, LastName, Email, Role 
-				FROM Employee 
+				SELECT e.Id, e.FirstName, e.LastName, e.Email, e.Role, pp.URL 
+				FROM Employee e
+				LEFT JOIN ProfilePicture pp ON e.Id = pp.EmployeeId
 				WHERE Team = ${teamId} AND Id != '${req.user.id}'
 			`);
 		}

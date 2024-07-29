@@ -3,13 +3,13 @@ const router = express.Router();
 const isValidEmail = require("../lib/isValidEmail");
 const generateRandomPassword = require("../lib/generateRandomPassword");
 const encryptPassword = require("../lib/encryptPassword");
+const {poolPromise} = require("../lib/database");
 
 // Import route middlewares
 const logger = require("../middleware/logger");
 const authenticateToken = require('../middleware/authenticateToken');
 const getEmployeeId = require('../middleware/getEmployeeId');
 const checkAdmin = require('../middleware/checkAdmin');
-const {poolPromise} = require("../lib/database");
 
 // Use route middlewares
 router.use(logger);
@@ -24,11 +24,13 @@ router.route('/')
 			const employeesQuery = await pool.request().query(`
 				SELECT 
 					e.Id AS id, e.FirstName AS firstName, e.LastName AS lastName, e.Email AS email, e.Role AS role, 
-					e.IsAdmin AS isAdmin, e.Birthdate AS birthDay, t.Name AS team, t.Lead AS isTL
+					e.IsAdmin AS isAdmin, e.Birthdate AS birthDay, t.Name AS team, t.Lead AS isTL, pp.URL AS imageUrl
 				FROM Employee e
+				LEFT JOIN ProfilePicture pp ON e.Id = pp.EmployeeId
 				LEFT JOIN Team t ON e.Team = t.Id
 				WHERE e.Status = '1'
 			`);
+
 			const results = employeesQuery.recordset.map((r) => {
 				const year = r.birthDay ? r.birthDay.getFullYear() : '';
 				const month = r.birthDay ? r.birthDay.getMonth() + 1 : '';
@@ -39,9 +41,9 @@ router.route('/')
 					isTL: r.id === r.isTL,
 					isAdmin: r.isAdmin === 1,
 					birthDay: `${year}-${month < 10 ? '0' + month : month}-${date < 10 ? '0' + date : date}`,
-					imageUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60"
 				};
 			});
+
 			return res.status(200).json({employees: results});
 		} catch (e) {
 			console.log(e);

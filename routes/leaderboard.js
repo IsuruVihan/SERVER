@@ -19,16 +19,17 @@ router.route('')
 
 			const leaderboardQuery = await pool.request().query(`
 				SELECT 
-					e.Id as id, 
+					e.Id AS id, 
 					CONCAT(e.FirstName, ' ', e.LastName) AS name, 
 					e.Email AS email, 
-					COALESCE(SUM(c.Points), 0) AS points
-				FROM CompletedKTCourse c
-				RIGHT JOIN Employee e 
-				ON c.EmployeeId = e.Id 
+					COALESCE(SUM(c.Points), 0) AS points, 
+					pp.URL AS profilePicture
+				FROM Employee e
+				LEFT JOIN CompletedKTCourse c ON e.Id = c.EmployeeId
+				LEFT JOIN ProfilePicture pp ON e.Id = pp.EmployeeId
 				WHERE e.Status = '1'
-				GROUP BY e.Id, e.Email, e.FirstName, e.LastName
-				ORDER BY points DESC
+				GROUP BY e.Id, e.Email, e.FirstName, e.LastName, pp.URL
+				ORDER BY points DESC;
 			`);
 
 			return res.status(200).json({ leaderboard: leaderboardQuery.recordset });

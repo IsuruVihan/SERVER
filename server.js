@@ -28,6 +28,7 @@ const teamRouter = require('./routes/team');
 const dashboardRouter = require('./routes/dashboard');
 const postRouter = require('./routes/post');
 const chatRouter = require('./routes/chat');
+const calendarRouter = require('./routes/calendar');
 
 // Create express app
 const app = express();
@@ -58,6 +59,7 @@ app.use('/team', teamRouter);
 app.use('/dashboard', dashboardRouter);
 app.use('/post', postRouter);
 app.use('/chat', chatRouter);
+app.use('/calendar', calendarRouter);
 
 // Run app
 app.listen(4000, () => {

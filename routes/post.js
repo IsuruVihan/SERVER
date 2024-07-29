@@ -30,11 +30,12 @@ router.route('')
 			const postDataQuery = await pool.request().query(`
 				SELECT 
 					p.Id AS id, p.Title AS title, p.Content AS description, p.PublishedOn AS date, pa.URL AS imageUrl, 
-					e.FirstName + ' ' + e.LastName AS authorName
+					e.FirstName + ' ' + e.LastName AS authorName, pp.URL AS ProfilePicture
 				FROM Post p
-				LEFT JOIN PostAttachment pa ON p.Id = pa.PostId
 				INNER JOIN Employee e ON p.AuthorId = e.Id
-				ORDER BY p.Id DESC
+				LEFT JOIN PostAttachment pa ON p.Id = pa.PostId
+				LEFT JOIN ProfilePicture pp ON e.Id = pp.EmployeeId
+				ORDER BY p.Id DESC;
 			`);
 
 			return res.status(200).json({posts: postDataQuery.recordset});
@@ -69,7 +70,7 @@ router.route('')
 			`);
 
 			if (req.files.length > 0) {
-				const attachmentName = `${require('crypto').randomBytes(32).toString('hex')}.jpeg`;
+				const attachmentName = ⁠ ${require('crypto').randomBytes(32).toString('hex')}.jpeg ⁠;
 				const attachmentURL = await uploadFileToFirebaseStorage(
 					req.files[0].buffer,
 					attachmentName,

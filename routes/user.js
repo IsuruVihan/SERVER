@@ -15,10 +15,16 @@ router.use(authenticateToken);
 router.route('/')
 	.get(async (req, res) => {
 		const pool = await poolPromise;
-		const result = await pool.request().query(`SELECT FirstName, LastName FROM Employee WHERE email = '${req.user.email}'`);
+		const result = await pool.request().query(`
+			SELECT e.FirstName, e.LastName, pp.URL 
+			FROM Employee e
+			LEFT JOIN ProfilePicture pp ON e.Id = pp.EmployeeId 
+			WHERE email = '${req.user.email}'
+		`);
 		return res.status(200).json({
 			firstName: result.recordset[0].FirstName,
-			lastName: result.recordset[0].LastName
+			lastName: result.recordset[0].LastName,
+			profilePicture: result.recordset[0].URL,
 		});
 	});
 
