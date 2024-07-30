@@ -19,7 +19,7 @@ router.route('')
 
         const fromDate = req.query.from;
 		const toDate = req.query.to;
-
+        console.log(req.body)
 
 		const employeeIdQuery = await pool.request().query(`SELECT Id FROM Employee WHERE email = '${email}'`);
 
