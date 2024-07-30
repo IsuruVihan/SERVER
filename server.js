@@ -29,6 +29,8 @@ const dashboardRouter = require('./routes/dashboard');
 const postRouter = require('./routes/post');
 const chatRouter = require('./routes/chat');
 const calendarRouter = require('./routes/calendar');
+const attendanceReportRouter = require('./routes/attendanceReport');
+const leavesReportRouter = require('./routes/leavesReport');
 
 // Create express app
 const app = express();
@@ -60,6 +62,8 @@ app.use('/dashboard', dashboardRouter);
 app.use('/post', postRouter);
 app.use('/chat', chatRouter);
 app.use('/calendar', calendarRouter);
+app.use('/attendance-report', attendanceReportRouter);
+app.use('/leaves-report', leavesReportRouter)
 
 // Run app
 app.listen(4000, () => {
