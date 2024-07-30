@@ -132,28 +132,56 @@ router.route('/check-out')
 			});
 		}
 	})
-	.post(async (req, res) => {
-		const {date, time} = req.body;
+	// .post(async (req, res) => {
+	// 	const {date, time} = req.body;
 
-		const pool = await poolPromise;
+	// 	const pool = await poolPromise;
 
-		const employeeIdQuery = await pool.request().query(`SELECT Id FROM Employee WHERE email = '${req.user.email}'`);
-		const employeeId = employeeIdQuery.recordset[0].Id;
+	// 	const employeeIdQuery = await pool.request().query(`SELECT Id FROM Employee WHERE email = '${req.user.email}'`);
+	// 	const employeeId = employeeIdQuery.recordset[0].Id;
 
-		// Check for the checked-in employee
-		const alreadyCheckedInQuery = await pool.request().query(`SELECT EmployeeId FROM AttendanceRecord WHERE EmployeeId = '${employeeId}' AND CheckInDate = '${date}' AND CheckOutDate IS NULL 
-        AND CheckOutTime IS NULL`);
-		if (alreadyCheckedInQuery.recordset.length > 0) {
-			// Update attendance record
-			const updateRecordQuery = await pool.request().query(`UPDATE AttendanceRecord SET CheckOutDate = '${date}', CheckOutTime = '${time}' WHERE EmployeeId = '${employeeId}' AND CheckInDate = '${date}'`);
-			return res.status(200).json({
-				message: "Checked-out successfully"
-			});
-		}
+	// 	// Check for the checked-in employee
+	// 	const alreadyCheckedInQuery = await pool.request().query(`SELECT EmployeeId FROM AttendanceRecord WHERE EmployeeId = '${employeeId}' AND CheckInDate = '${date}' AND CheckOutDate IS NULL 
+    //     AND CheckOutTime IS NULL`);
+	// 	if (alreadyCheckedInQuery.recordset.length > 0) {
+	// 		// Update attendance record
+	// 		const updateRecordQuery = await pool.request().query(`UPDATE AttendanceRecord SET CheckOutDate = '${date}', CheckOutTime = '${time}' WHERE EmployeeId = '${employeeId}' AND CheckInDate = '${date}'`);
+	// 		return res.status(200).json({
+	// 			message: "Checked-out successfully"
+	// 		});
+	// 	}
 
-		return res.status(400).json({
-			message: "Already checked-out or not checked-in"
-		});
-	});
+	// 	return res.status(400).json({
+	// 		message: "Already checked-out or not checked-in"
+	// 	});
+	// });
+
+    .post(async (req, res) => {
+        const { date, time } = req.body;
+
+        const pool = await poolPromise;
+
+        const employeeIdQuery = await pool.request().query(`SELECT Id FROM Employee WHERE email = '${req.user.email}'`);
+        const employeeId = employeeIdQuery.recordset[0].Id;
+
+        // Check if the employee has checked in on the given date
+        const checkInQuery = await pool.request().query(`SELECT * FROM AttendanceRecord WHERE EmployeeId = '${employeeId}' AND CheckInDate = '${date}'`);
+        if (checkInQuery.recordset.length === 0) {
+            return res.status(400).json({
+                message: "Not checked-in on the provided date"
+            });
+        }
+
+        // Insert a new check-out record
+        const insertRecordQuery = await pool.request().query(`
+            INSERT INTO AttendanceRecord (EmployeeId, CheckOutDate, CheckOutTime)
+            VALUES ('${employeeId}', '${date}', '${time}')
+        `);
+
+        return res.status(200).json({
+            message: "Checked-out successfully"
+        });
+    });
+
 
 module.exports = router;
